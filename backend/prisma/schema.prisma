@@ -11,3 +11,88 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Gender {
+  MALE
+  FEMALE
+  NONE
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  username         String    @unique @db.VarChar(100)
+  name             String?   @db.VarChar(100)
+  email            String    @unique @db.VarChar(255)
+  password         String
+  profile          Profile?
+  post             Post[]
+  likes            Like[]
+  followers        Follow[]  @relation("userFollower")
+  following        Follow[]  @relation("userFollowing")
+  comments         Comment[]
+  deletedMsgs      Message[] @relation("deletedBy")
+  sentMessages     Message[] @relation("sentMessages")
+  receivedMessages Message[] @relation("receivedMessages")
+}
+
+model Profile {
+  id         Int     @id @default(autoincrement())
+  gender     Gender  @default(NONE)
+  bio        String?
+  profilePic String?
+  coverPic   String?
+  userId     Int     @unique
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Follow {
+  following     Int
+  follower      Int
+  userFollowing User @relation("userFollowing", fields: [following], references: [id], onDelete: Cascade)
+  userFollower  User @relation("userFollower", fields: [follower], references: [id], onDelete: Cascade)
+
+  @@id([follower, following])
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  text      String?
+  image     String?
+  userId    Int       @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     Like[]
+  comments  Comment[]
+}
+
+model Like {
+  userId Int
+  postId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  userId    Int
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  textMessage  String?
+  imageMessage String?
+  senderId     Int
+  receiverId   Int
+  deletedBy    Int?
+  user         User?    @relation("deletedBy", fields: [deletedBy], references: [id])
+  user1        User?    @relation("sentMessages", fields: [senderId], references: [id])
+  user2        User?    @relation("receivedMessages", fields: [receiverId], references: [id])
+}
