@@ -1,6 +1,8 @@
 const express = require('express');
-require('dotenv').config();
 const errorHandler = require('./src/middlewares/errorHandler');
+const userRouter = require('./src/routes/userRouter');
+const authRouter = require('./src/routes/authRouter');
+require('dotenv').config();
 
 const app = express();
 
@@ -10,6 +12,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Spark App Server' });
 });
+
+app.use(userRouter);
+app.use(authRouter);
 
 app.use(errorHandler);
 
