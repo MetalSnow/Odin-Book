@@ -36,6 +36,8 @@
     "globals": "^17.13.0",
     "jest": "^30.5.2",
     "prisma": "^7.10.0",
-    "supertest": "^7.3.1"
+    "supertest": "^7.3.1",
+    "ts-jest": "^29.4.15",
+    "typescript": "^6.0.3"
   }
 }
