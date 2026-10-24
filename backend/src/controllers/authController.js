@@ -11,7 +11,7 @@ const validateUser = [
   body('username')
     .trim()
     .custom(async (value) => {
-      const user = prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           username: value,
         },
@@ -23,7 +23,7 @@ const validateUser = [
   body('email')
     .trim()
     .custom(async (value) => {
-      const user = prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           email: value,
         },
@@ -44,7 +44,7 @@ const signupUser = [
   validateUser,
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty) {
+    if (!errors.isEmpty()) {
       return res.status(400).json({
         errors: errors.array(),
       });
@@ -53,7 +53,7 @@ const signupUser = [
 
     const hashedPassword = await bcrypt.hash(pswd, 10);
 
-    const user = prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         username,
         email,
