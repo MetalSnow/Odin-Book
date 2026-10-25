@@ -27,8 +27,10 @@ describe('authRouter', () => {
     expect(response.body.data.password).toBeUndefined();
 
     const response2 = await request(app).post('/signup').send(userInfo);
+    const errors = response2.body.errors.map((err) => err.path);
     expect(response2.status).toEqual(400);
     expect(response2.body.errors).toHaveLength(2);
+    expect(errors).toEqual(expect.arrayContaining(['username', 'email']));
   });
 
   test('signup inputs validation work', async () => {
