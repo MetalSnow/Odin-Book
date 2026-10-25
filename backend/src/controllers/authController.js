@@ -19,7 +19,9 @@ const validateUser = [
       if (user) throw new Error('Username already exist.');
     })
     .isLength({ min: 3 })
-    .withMessage(`Username ${lengthErr}`),
+    .withMessage(`Username ${lengthErr}`)
+    .isAlphanumeric()
+    .withMessage('Username cannot contains symbols.'),
   body('email')
     .trim()
     .custom(async (value) => {

@@ -54,4 +54,17 @@ describe('authRouter', () => {
       ]),
     );
   });
+
+  test('returns error if username contains symbols', async () => {
+    const userInfo = {
+      username: 'jack@mail',
+      email: 'jack11@gmail.com',
+      password: 'qwerty123',
+      confirmedPassword: 'qwerty123',
+    };
+    const response = await request(app).post('/signup').send(userInfo);
+    expect(response.status).toEqual(400);
+    expect(response.body.errors).toHaveLength(1);
+    expect(response.body.errors[0].path).toBe('username');
+  });
 });
