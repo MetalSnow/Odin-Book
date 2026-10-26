@@ -3,6 +3,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const { prisma } = require('../lib/prisma');
 const bcrypt = require('bcryptjs');
 
+const INVALID_LOGIN = 'Invalid username/email or password.';
+
 passport.use(
   new LocalStrategy(async (usernameEmail, password, done) => {
     try {
@@ -11,13 +13,13 @@ passport.use(
       });
 
       if (!user) {
-        return done(null, false, { message: 'Incorrect Username/Email.' });
+        return done(null, false, { message: INVALID_LOGIN });
       }
 
       const isMatched = await bcrypt.compare(password, user.password);
 
       if (!isMatched) {
-        return done(null, false, { message: 'Incorrect Password.' });
+        return done(null, false, { message: INVALID_LOGIN });
       }
 
       done(null, user);
@@ -36,6 +38,12 @@ passport.deserializeUser(async (userId, done) => {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
+      },
+      omit: {
+        password: true,
+      },
+      include: {
+        profile: true,
       },
     });
 

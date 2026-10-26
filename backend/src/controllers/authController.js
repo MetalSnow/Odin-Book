@@ -77,4 +77,14 @@ const signupUser = [
   }),
 ];
 
-module.exports = { signupUser };
+const loginUser = (req, res) => {
+  const { password, ...rest } = req.user;
+
+  res.json({
+    success: true,
+    data: rest,
+    message: 'Login successful.',
+  });
+};
+
+module.exports = { signupUser, loginUser };
