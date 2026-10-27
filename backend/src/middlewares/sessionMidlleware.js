@@ -1,9 +1,15 @@
 const session = require('express-session');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
-const { prisma } = require('./src/lib/prisma');
-require('dotenv').config();
+const { prisma } = require('../lib/prisma');
+// require('dotenv').config();
 
 const isProd = process.env.NODE_ENV === 'production';
+
+const store = new PrismaSessionStore(prisma, {
+  checkPeriod: 2 * 60 * 1000,
+  dbRecordIdIsSessionId: true,
+  dbRecordIdFunction: undefined,
+});
 
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
@@ -15,11 +21,7 @@ const sessionMiddleware = session({
     secure: isProd,
   },
 
-  store: new PrismaSessionStore(prisma, {
-    checkPeriod: 2 * 60 * 1000,
-    dbRecordIdIsSessionId: true,
-    dbRecordIdFunction: undefined,
-  }),
+  store,
 });
 
-module.exports = sessionMiddleware;
+module.exports = { sessionMiddleware, store };

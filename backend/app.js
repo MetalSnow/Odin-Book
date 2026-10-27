@@ -3,7 +3,7 @@ const errorHandler = require('./src/middlewares/errorHandler');
 const userRouter = require('./src/routes/userRouter');
 const authRouter = require('./src/routes/authRouter');
 const passport = require('./src/config/passport');
-const sessionMiddleware = require('./src/middlewares/sessionMidlleware');
+const { sessionMiddleware } = require('./src/middlewares/sessionMidlleware');
 require('dotenv').config();
 
 const app = express();
