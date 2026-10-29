@@ -66,13 +66,10 @@ describe('authRouter', () => {
 
   describe('POST /login', () => {
     beforeAll(async () => {
-      const { confirmedPassword, ...rest } = validSignup();
-      await prisma.user.create({
-        data: rest,
-      });
+      await request(app).post('/signup').send(validSignup());
     });
 
-    test('authenticate middleware works', async () => {
+    test('login end point works', async () => {
       const loginDetails = {
         usernameEmail: 'jack11@gmail.com',
         password: 'qwerty123',
@@ -80,6 +77,20 @@ describe('authRouter', () => {
       const response = await request(app).post('/login').send(loginDetails);
 
       expect(response.status).toEqual(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.username).toBe('jack');
+    });
+
+    test('authenticate middleware returns 401 with an error message', async () => {
+      const loginDetails = {
+        usernameEmail: 'j11@gmail.com',
+        password: 'qwerty123',
+      };
+      const response = await request(app).post('/login').send(loginDetails);
+
+      expect(response.status).toEqual(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Invalid username/email or password.');
     });
   });
 });
