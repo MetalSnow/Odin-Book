@@ -6,4 +6,10 @@ const validSignup = (overrides = {}) => ({
   ...overrides,
 });
 
-module.exports = { validSignup };
+const loginDetails = (overrides = {}) => ({
+  usernameEmail: 'jack11@gmail.com',
+  password: 'qwerty123',
+  ...overrides,
+});
+
+module.exports = { validSignup, loginDetails };

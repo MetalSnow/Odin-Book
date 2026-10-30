@@ -1,6 +1,6 @@
 const { prisma } = require('../lib/prisma');
 const { store } = require('../middlewares/sessionMidlleware');
-const { validSignup } = require('../tests/helpers');
+const { validSignup, loginDetails } = require('../tests/helpers');
 const { app, request } = require('../tests/testApp');
 
 describe('authRouter', () => {
@@ -66,31 +66,41 @@ describe('authRouter', () => {
 
   describe('POST /login', () => {
     beforeAll(async () => {
-      await request(app).post('/signup').send(validSignup());
+      await prisma.user.deleteMany();
+      const res = await request(app).post('/signup').send(validSignup());
+      expect(res.status).toEqual(200);
     });
 
     test('login end point works', async () => {
-      const loginDetails = {
-        usernameEmail: 'jack11@gmail.com',
-        password: 'qwerty123',
-      };
-      const response = await request(app).post('/login').send(loginDetails);
+      const response = await request(app).post('/login').send(loginDetails());
 
       expect(response.status).toEqual(200);
+      expect(response.header['set-cookie']).toHaveLength(1);
       expect(response.body.success).toBe(true);
       expect(response.body.data.username).toBe('jack');
+      expect(response.body.data.password).toBeUndefined();
     });
 
-    test('authenticate middleware returns 401 with an error message', async () => {
-      const loginDetails = {
-        usernameEmail: 'j11@gmail.com',
-        password: 'qwerty123',
-      };
-      const response = await request(app).post('/login').send(loginDetails);
+    test('returns 401 with an error message on wrong username', async () => {
+      const response = await request(app)
+        .post('/login')
+        .send(loginDetails({ usernameEmail: 'wrong@gmail.com' }));
+
+      expect(response.status).toEqual(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Invalid username/email or password.');
+    });
+
+    test('returns 401 with an error message on wrong password', async () => {
+      const response = await request(app)
+        .post('/login')
+        .send(loginDetails({ password: 'wrongpassword' }));
 
       expect(response.status).toEqual(401);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Invalid username/email or password.');
     });
   });
+
+  // describe('POST /logout', () => {});
 });
