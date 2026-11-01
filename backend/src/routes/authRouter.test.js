@@ -102,5 +102,32 @@ describe('authRouter', () => {
     });
   });
 
-  // describe('POST /logout', () => {});
+  describe('POST /logout', () => {
+    const agent = request.agent(app);
+
+    beforeAll(async () => {
+      await prisma.user.deleteMany();
+
+      const res = await request(app).post('/signup').send(validSignup());
+      expect(res.status).toEqual(200);
+
+      const response = await agent.post('/login').send(loginDetails());
+      expect(response.status).toEqual(200);
+      expect(response.header['set-cookie']).toHaveLength(1);
+    });
+
+    test('logout end point works', async () => {
+      const response = await agent.post('/logout');
+
+      expect(response.status).toEqual(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    test('it should fail when loging out the second time', async () => {
+      const response = await agent.post('/logout');
+
+      expect(response.status).toEqual(401);
+      expect(response.body.success).toBe(false);
+    });
+  });
 });
