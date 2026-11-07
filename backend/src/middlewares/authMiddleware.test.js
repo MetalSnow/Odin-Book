@@ -26,7 +26,7 @@ describe('isAuth middleware', () => {
     expect(obj.res.status).toHaveBeenCalledWith(401);
     expect(obj.res.json).toHaveBeenCalledWith({
       success: false,
-      message: 'You are not authorized!',
+      error: 'You are not authorized to view the resources.',
     });
   });
 });

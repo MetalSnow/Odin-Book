@@ -16,7 +16,7 @@ const isAuth = (req, res, next) => {
 
   return res.status(401).json({
     success: false,
-    message: 'You are not authorized!',
+    error: 'You are not authorized to view the resources.',
   });
 };
 
