@@ -14,8 +14,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
 app.use(passport.session());
 
-app.use(userRouter);
 app.use(authRouter);
+app.use(userRouter);
 app.use(errorHandler);
 
 module.exports = { request, app };
