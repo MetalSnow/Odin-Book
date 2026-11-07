@@ -8,7 +8,8 @@
     "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true,
     "strict": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "declaration": true
   },
   "include": ["generated/prisma/**/*.ts"]
 }
