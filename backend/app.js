@@ -18,8 +18,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Spark App Server' });
 });
 
-app.use(userRouter);
 app.use(authRouter);
+app.use(userRouter);
 
 app.use(errorHandler);
 

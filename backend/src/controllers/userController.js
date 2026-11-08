@@ -36,4 +36,31 @@ const findUsers = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getCurrentUser, findUsers };
+const getUserById = asyncHandler(async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  const data = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  if (!data)
+    return res.status(404).json({
+      success: false,
+      error: 'User Not Found',
+    });
+
+  res.json({
+    success: true,
+    data,
+  });
+});
+
+module.exports = { getCurrentUser, findUsers, getUserById };
