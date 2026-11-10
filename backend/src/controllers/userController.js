@@ -1,5 +1,62 @@
 const asyncHandler = require('express-async-handler');
 const { prisma } = require('../lib/prisma');
+const { body, validationResult } = require('express-validator');
+
+const lengthErr = 'must be minimum 3 characters.';
+const emailErr = 'Please enter a valid email.';
+const passwordErr = 'password must be minimum 5 characters.';
+
+const validateUserInfo = [
+  body('name')
+    .trim()
+    .isLength({ min: 3 })
+    .withMessage(`Name must be minimum 3 characters.`),
+  body('username')
+    .trim()
+    .custom(async (value) => {
+      const user = await prisma.user.findUnique({
+        where: {
+          username: value,
+        },
+      });
+      if (user) throw new Error('Username already exist.');
+    })
+    .isLength({ min: 3 })
+    .withMessage(`Username ${lengthErr}`)
+    .isAlphanumeric()
+    .withMessage('Username cannot contains symbols.'),
+  body('email')
+    .trim()
+    .custom(async (value) => {
+      const user = await prisma.user.findUnique({
+        where: {
+          email: value,
+        },
+      });
+      if (user) throw new Error('Email is already in use.');
+    })
+    .isEmail()
+    .withMessage(emailErr),
+];
+
+const validateNewPassword = [
+  body('currentPassword').custom(async (value, { req }) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      },
+    });
+    const isMatched = await bcrypt.compare(value, user.password);
+
+    if (!isMatched) throw new Error('Current password is incorrect.');
+  }),
+  body('newPassword').isLength({ min: 5 }).withMessage(`New ${passwordErr}`),
+  body('confirmedPassword')
+    .custom((value, { req }) => {
+      return value === req.body.newPassword;
+    })
+    .withMessage('Confirmed password does not match.'),
+];
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   res.json({
@@ -63,4 +120,38 @@ const getUserById = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getCurrentUser, findUsers, getUserById };
+const updateUserInfo = [
+  validateUserInfo,
+  asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty) {
+      return res.status(400).json({
+        errors: errors.array(),
+      });
+    }
+
+    const { name, username, email } = req.body;
+
+    const data = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        name,
+        username,
+        email,
+      },
+      omit: {
+        password: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      data,
+      message: 'Account details updated!',
+    });
+  }),
+];
+
+module.exports = { getCurrentUser, findUsers, getUserById, updateUserInfo };

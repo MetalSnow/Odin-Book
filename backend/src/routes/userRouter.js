@@ -3,6 +3,8 @@ const {
   getCurrentUser,
   findUsers,
   getUserById,
+  updateUserInfo,
+  UpdateUserPwd,
 } = require('../controllers/userController');
 const { isAuth } = require('../middlewares/authMiddleware');
 
@@ -13,5 +15,7 @@ userRouter.use(isAuth);
 userRouter.get('/user', getCurrentUser);
 userRouter.get('/users', findUsers);
 userRouter.get('/user/:userId', getUserById);
+userRouter.patch('/user', updateUserInfo);
+userRouter.patch('/user/pwd', UpdateUserPwd);
 
 module.exports = userRouter;
