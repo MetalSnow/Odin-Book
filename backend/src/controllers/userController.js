@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const { prisma } = require('../lib/prisma');
 const { body, validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
 
 const lengthErr = 'must be minimum 3 characters.';
 const emailErr = 'Please enter a valid email.';
@@ -124,7 +125,7 @@ const updateUserInfo = [
   validateUserInfo,
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty) {
+    if (!errors.isEmpty()) {
       return res.status(400).json({
         errors: errors.array(),
       });
@@ -149,9 +150,63 @@ const updateUserInfo = [
     res.json({
       success: true,
       data,
-      message: 'Account details updated!',
+      message: 'Account details updated.',
     });
   }),
 ];
 
-module.exports = { getCurrentUser, findUsers, getUserById, updateUserInfo };
+const UpdateUserPwd = [
+  validateNewPassword,
+  asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array(),
+      });
+    }
+
+    const { newPassword, ...rest } = req.body;
+    const userId = req.user.id;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully.',
+    });
+  }),
+];
+
+const deleteUser = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const data = await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+
+  res.json({
+    success: true,
+    data,
+    message: 'Account deleted successfuly.',
+  });
+});
+
+module.exports = {
+  getCurrentUser,
+  findUsers,
+  getUserById,
+  updateUserInfo,
+  UpdateUserPwd,
+  deleteUser,
+};

@@ -5,6 +5,7 @@ const {
   getUserById,
   updateUserInfo,
   UpdateUserPwd,
+  deleteUser,
 } = require('../controllers/userController');
 const { isAuth } = require('../middlewares/authMiddleware');
 
@@ -16,6 +17,7 @@ userRouter.get('/user', getCurrentUser);
 userRouter.get('/users', findUsers);
 userRouter.get('/user/:userId', getUserById);
 userRouter.patch('/user', updateUserInfo);
-userRouter.patch('/user/pwd', UpdateUserPwd);
+userRouter.patch('/user/password', UpdateUserPwd);
+userRouter.delete('/user', deleteUser);
 
 module.exports = userRouter;
