@@ -8,10 +8,6 @@ const emailErr = 'Please enter a valid email.';
 const passwordErr = 'password must be minimum 5 characters.';
 
 const validateUserInfo = [
-  body('name')
-    .trim()
-    .isLength({ min: 3 })
-    .withMessage(`Name must be minimum 3 characters.`),
   body('username')
     .trim()
     .custom(async (value) => {
