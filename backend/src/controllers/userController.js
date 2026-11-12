@@ -185,7 +185,7 @@ const UpdateUserPwd = [
 const deleteUser = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
-  const data = await prisma.user.delete({
+  await prisma.user.delete({
     where: {
       id: userId,
     },
@@ -193,7 +193,6 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data,
     message: 'Account deleted successfuly.',
   });
 });
