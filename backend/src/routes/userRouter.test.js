@@ -117,4 +117,79 @@ describe('userRouter', () => {
       );
     });
   });
+
+  describe('PATCH /user updateUserInfo', () => {
+    test('returns the correct updated user data', async () => {
+      const user = {
+        name: 'Jack Spicer',
+        username: 'jack11',
+        email: 'jack@gmail.com',
+      };
+      const response = await agent.patch('/user').send(user);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.name).toBe('Jack Spicer');
+      expect(response.body.data.username).toBe('jack11');
+      expect(response.body.data.email).toBe('jack@gmail.com');
+    });
+    test('returns validation errors array if inputs are wrong', async () => {
+      const user = {
+        name: '', // Name is optional so it should not return an error if empty
+        username: '1',
+        email: 'jack',
+      };
+      const response = await agent.patch('/user').send(user);
+
+      const errors = response.body.errors.map((err) => err.path);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toHaveLength(2);
+      expect(errors).toEqual(expect.arrayContaining(['username', 'email']));
+    });
+  });
+
+  describe('PATCH /user/password updateUserPassword', () => {
+    test('returns validation errors array if password inputs are wrong', async () => {
+      const data = {
+        currentPassword: '',
+        newPassword: 'qwe',
+        confirmedPassword: 'quertyy',
+      };
+      const response = await agent.patch('/user/password').send(data);
+
+      const errors = response.body.errors.map((err) => err.path);
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toHaveLength(3);
+      expect(errors).toEqual(
+        expect.arrayContaining([
+          'currentPassword',
+          'newPassword',
+          'confirmedPassword',
+        ]),
+      );
+    });
+    test('returns 200 with a success message', async () => {
+      const data = {
+        currentPassword: 'qwerty123',
+        newPassword: 'qwert',
+        confirmedPassword: 'qwert',
+      };
+      const response = await agent.patch('/user/password').send(data);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Password changed successfully.');
+    });
+  });
+
+  describe('DELETE /user deleteUser', () => {
+    test('returns 200 with a success message', async () => {
+      const response = await agent.delete('/user');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Account deleted successfuly.');
+    });
+  });
 });
