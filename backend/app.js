@@ -4,6 +4,7 @@ const userRouter = require('./src/routes/userRouter');
 const authRouter = require('./src/routes/authRouter');
 const passport = require('./src/config/passport');
 const { sessionMiddleware } = require('./src/middlewares/sessionMidlleware');
+const profileRouter = require('./src/routes/profileRouter');
 require('dotenv').config();
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 app.use(authRouter);
 app.use(userRouter);
+app.use(profileRouter);
 
 app.use(errorHandler);
 
